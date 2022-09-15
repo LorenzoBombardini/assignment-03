@@ -18,6 +18,7 @@ temp = {"status": 0}
 light = {"status": 0}
 alarm = {"status": False}
 bth = {"status": False}
+led_sensor = {"status": 0}
 
 
 def isPresent(id, valuelist, field):
@@ -30,6 +31,16 @@ def isPresent(id, valuelist, field):
 @app.get("/led")
 def get_leds():
     return jsonify(led)
+
+
+@app.get("/light")
+def get_light():
+    return jsonify(light)
+
+
+@app.get("/temp")
+def get_temp():
+    return jsonify(temp)
 
 
 @app.get("/irrigation")
@@ -66,23 +77,15 @@ def set_alarm():
     return {"error": "Request must be JSON"}, 415
 
 
-@app.post("/temp")
+@app.post("/sensor")
 def set_temp():
     if request.is_json:
         req = request.get_json()
-        status = req["status"]
-        status = int(status)
-        temp["status"] = status
-        return temp, 201
-    return {"error": "Request must be JSON"}, 415
-
-
-@app.post("/light")
-def set_light():
-    if request.is_json:
-        req = request.get_json()
-        status = req["status"]
-        status = int(status)
-        light["status"] = status
-        return light, 201
+        statustemp = req["temp"]
+        statuslight = req["light"]
+        statustemp = int(statustemp)
+        statuslight = int(statuslight)
+        temp["status"] = statustemp
+        light["status"] = statuslight
+        return str(led_sensor["status"]), 201
     return {"error": "Request must be JSON"}, 415
