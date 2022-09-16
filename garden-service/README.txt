@@ -1,1 +1,2 @@
-requirements $ python -m pip install flask
+ .\gservice\Scripts\Activate.ps1
+flask run --host 0.0.0.0 --port 8000

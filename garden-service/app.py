@@ -1,16 +1,16 @@
 # app.py
 from flask import Flask, request, jsonify
-
+from flask_cors import CORS
 
 app = Flask(__name__)
-if __name__ == "__main__":
-    app.run(debug=True)
+CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 led = [
     {"id": 1, "status": False},
     {"id": 2, "status": False},
     {"id": 3, "status": 0},
-    {"id": 4, "status": 0},
+    {"id": 4, "status": 5},
 ]
 
 irrigation = {"status": 0}
@@ -28,7 +28,7 @@ def isPresent(id, valuelist, field):
     return False
 
 
-@app.get("/led")
+@app.get("/led/") 
 def get_leds():
     return jsonify(led)
 
