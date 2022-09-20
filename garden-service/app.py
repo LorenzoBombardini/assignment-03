@@ -54,29 +54,41 @@ class IrrigationStatus (Enum):
     READY = 2
 
 
+# environment variables and costants
+IRRIGATION_STOP_TIME = 60
+IRRIGATION_MAX_EXECUTON_TIME = 30
+actualSystemStatus = SystemStatus.AUTO
+actualIrrigationStatus = IrrigationStatus.READY
+start_irrigation_time = None
+start_stop_time = None
+mappedTemperature = 0
+
+# api variables
 led = [
     {"id": 1, "status": False},
     {"id": 2, "status": False},
     {"id": 3, "status": 0},
     {"id": 4, "status": 0},
 ]
-
-IRRIGATION_STOP_TIME = 60
-IRRIGATION_MAX_EXECUTON_TIME = 30
-actualSystemStatus = SystemStatus.AUTO
-actualIrrigationStatus = IrrigationStatus.READY
-controller_connected = False
-mobile_connected = False
-start_irrigation_time = None
-start_stop_time = None
-
-
 irrigation = {"status": 0}  # 1-5
-temp = {"status": 5}  # 1-5
+temp = {"status": 30}  # celsius
 light = {"status": 7}  # 0-7
 alarm = {"status": False}
 bth = {"status": False}
 led_sensor = {"status": 1}  # 0-1
+controller_connected = False
+mobile_connected = False
+
+
+def mapTemperature():
+    global mappedTemperature
+    # map non scalar temperature according to real values temperature
+    if temp["status"] > 50:
+        mappedTemperature = 5
+    elif temp["status"] < 10:
+        mappedTemperature = 0
+    else:
+        mappedTemperature = int(temp["status"] / 10)
 
 
 def engine():
@@ -84,6 +96,10 @@ def engine():
     global actualIrrigationStatus
     global start_stop_time
     global start_irrigation_time
+    global controller_connected
+    global mobile_connected
+
+    mapTemperature()
 
     if actualSystemStatus == SystemStatus.AUTO:
         # bth
@@ -93,45 +109,49 @@ def engine():
         else:
             bth["status"] = False
             actualSystemStatus = SystemStatus.AUTO
-        # light
-        if light["status"] < 5:
-            led[0]["status"] = True
-            led[1]["status"] = True
-            led[2]["status"] = 4 - light["status"]
-            led[3]["status"] = 4 - light["status"]
-        else:
-            led[0]["status"] = False
-            led[1]["status"] = False
-            led[2]["status"] = 0
-            led[3]["status"] = 0
-        if light["status"] < 2 and actualIrrigationStatus == IrrigationStatus.READY:
-            start_irrigation_time = time.time()
-            actualIrrigationStatus = IrrigationStatus.WORK
-            irrigation["status"] = temp["status"]
+            # light
+            if light["status"] < 5:
+                led[0]["status"] = True
+                led[1]["status"] = True
+                led[2]["status"] = 4 - light["status"]
+                led[3]["status"] = 4 - light["status"]
+            else:
+                led[0]["status"] = False
+                led[1]["status"] = False
+                led[2]["status"] = 0
+                led[3]["status"] = 0
+            if light["status"] < 2 and mappedTemperature > 0 and actualIrrigationStatus == IrrigationStatus.READY:
+                # don't put water on the grass with temperature below 10 degrees, the grass will freeze and the pipes will break
+                start_irrigation_time = time.time()
+                actualIrrigationStatus = IrrigationStatus.WORK
+                irrigation["status"] = mappedTemperature
 
-        # alarm
-        if temp["status"] == 5 and actualIrrigationStatus == IrrigationStatus.PAUSE:
-            actualSystemStatus = SystemStatus.ALARM
-            alarm["status"] = True
-            led_sensor["status"] = 0
+            # alarm
+            if mappedTemperature == 5 and actualIrrigationStatus == IrrigationStatus.PAUSE:
+                actualSystemStatus = SystemStatus.ALARM
+                alarm["status"] = True
+                led_sensor["status"] = 0
 
-        if start_irrigation_time != None and (time.time()-start_irrigation_time) > IRRIGATION_MAX_EXECUTON_TIME:
-            actualIrrigationStatus = IrrigationStatus.PAUSE
-            irrigation["status"] = 0
-            start_irrigation_time = None
-            start_stop_time = time.time()
+            if start_irrigation_time != None and (time.time()-start_irrigation_time) > IRRIGATION_MAX_EXECUTON_TIME:
+                actualIrrigationStatus = IrrigationStatus.PAUSE
+                irrigation["status"] = 0
+                start_irrigation_time = None
+                start_stop_time = time.time()
 
-        if start_stop_time != None and (time.time()-start_stop_time) > IRRIGATION_STOP_TIME:
-            actualIrrigationStatus = IrrigationStatus.READY
-            start_stop_time = None
+            if start_stop_time != None and (time.time()-start_stop_time) > IRRIGATION_STOP_TIME:
+                actualIrrigationStatus = IrrigationStatus.READY
+                start_stop_time = None
 
     if alarm["status"] == False and not (mobile_connected and controller_connected):
         actualSystemStatus = SystemStatus.AUTO
         led_sensor["status"] = 1
 
-    print(threading.get_ident())
+    # print(threading.get_ident())
+    print(controller_connected)
+    print(mobile_connected)
     print(actualSystemStatus)
     print(actualIrrigationStatus)
+    print("Mapped temperature: " + str(mappedTemperature))
 
 
 rt = RepeatedTimer(10, engine)
@@ -204,28 +224,30 @@ def set_alarm():
 
 @app.post("/controller/bth")
 def set_controller_connected():
+    global controller_connected
     if request.is_json:
         req = request.get_json()
         status = req["status"]
         status = bool(status)
         controller_connected = status
-        return controller_connected, 201
+        return str(controller_connected), 201
     return {"error": "Request must be JSON"}, 415
 
 
 @app.post("/mobile/bth")
 def set_mobile_connected():
+    global mobile_connected
     if request.is_json:
         req = request.get_json()
         status = req["status"]
         status = bool(status)
         mobile_connected = status
-        return mobile_connected, 201
+        return str(mobile_connected), 201
     return {"error": "Request must be JSON"}, 415
 
 
 @app.post("/sensor")
-def set_temp():
+def set_sensor_values():
     if request.is_json:
         req = request.get_json()
         statustemp = req["temp"]
