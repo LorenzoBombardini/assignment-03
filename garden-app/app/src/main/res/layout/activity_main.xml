@@ -2,17 +2,255 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="0dp">
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="28dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/smart_garden"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:typeface="normal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:contentDescription="@string/alarm_icon"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
+    <TextView
+        android:id="@+id/lightSystemTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="36dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/light_system"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:typeface="normal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title" />
+
+
+    <View
+        android:id="@+id/lightSystemDivider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintTop_toBottomOf="@+id/lightSystemTitle"
+        tools:layout_editor_absoluteX="50dp" />
+
+    <TextView
+        android:id="@+id/led1Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="28dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/led_1"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:typeface="normal"
+        app:layout_constraintEnd_toStartOf="@+id/Led1"
+        app:layout_constraintTop_toBottomOf="@+id/lightSystemDivider" />
+
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/Led1"
+        android:layout_width="54dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="36dp"
+        android:checked="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:showText="true"
+        android:splitTrack="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lightSystemDivider" />
+
+    <TextView
+        android:id="@+id/led2Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="28dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/led_2"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:typeface="normal"
+        app:layout_constraintEnd_toStartOf="@+id/led2"
+        app:layout_constraintTop_toBottomOf="@+id/led1Title" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/led2"
+        android:layout_width="54dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="28dp"
+        android:checked="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:showText="true"
+        android:splitTrack="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Led1" />
+
+    <TextView
+        android:id="@+id/led3Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="56dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/led_3"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:typeface="normal"
+        app:layout_constraintBottom_toTopOf="@+id/led3"
+        app:layout_constraintEnd_toStartOf="@+id/led4Title"
+        app:layout_constraintTop_toBottomOf="@+id/lightSystemDivider" />
+
+    <TextView
+        android:id="@+id/led4Title"
+        android:layout_width="64dp"
+        android:layout_height="33dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="20dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/led_4"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:typeface="normal"
+        app:layout_constraintBottom_toTopOf="@+id/led4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lightSystemDivider"
+        app:layout_constraintVertical_bias="0.296" />
+
+    <NumberPicker
+        android:id="@+id/led3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="136dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lightSystemDivider" />
+
+    <NumberPicker
+        android:id="@+id/led4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lightSystemDivider" />
+
+    <TextView
+        android:id="@+id/IrrigationSystemTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="152dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/irrigation_system"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:typeface="normal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/led2Title" />
+
+    <NumberPicker
+        android:id="@+id/speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SpeedTitle" />
+
+    <View
+        android:id="@+id/IrrigationSystemDivider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="12dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/IrrigationSystemTitle" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/IrrigationOnOffButton"
+        android:layout_width="54dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="32dp"
+        android:checked="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:showText="true"
+        android:splitTrack="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/IrrigationSystemDivider" />
+
+    <Button
+        android:id="@+id/BTHButton"
+        android:layout_width="136dp"
+        android:layout_height="58dp"
+        android:layout_marginBottom="44dp"
+        android:text="@string/bth_connection"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.112"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/SpeedTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/speed"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/IrrigationSystemDivider" />
+
+    <TextView
+        android:id="@+id/IrrigationOnOffTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/power"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:typeface="normal"
+        app:layout_constraintEnd_toStartOf="@+id/IrrigationOnOffButton"
+        app:layout_constraintTop_toBottomOf="@+id/IrrigationSystemDivider" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

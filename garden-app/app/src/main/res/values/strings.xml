@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">GardenMobileApp</string>
+    <string name="smart_garden">Smart Garden</string>
+    <string name="light_system">Light System</string>
+    <string name="alarm_icon">Alarm Icon</string>
+    <string name="led_3">Led 3</string>
+    <string name="led_4">Led 4</string>
+    <string name="led_1">Led 1</string>
+    <string name="led_2">Led 2</string>
+    <string name="irrigation_system">Irrigation System</string>
+    <string name="speed">Speed</string>
+    <string name="power">Power</string>
+    <string name="bth_connection">BTH Connection</string>
 </resources>
