@@ -3,7 +3,7 @@
 
 #include "servo_motor.h"
 #include <arduino.h>
-#include "Servo.h"
+#include "ServoTimer2.h"
 
 class ServoMotorImpl: public ServoMotor {
 
@@ -16,7 +16,7 @@ public:
     
 private:
   int pin; 
-  Servo motor; 
+  ServoTimer2 motor; 
 };
 
 #endif
