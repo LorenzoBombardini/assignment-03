@@ -1,12 +1,9 @@
 package com.example.gardenmobileapp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -23,15 +20,14 @@ import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity {
+
     private static final int REQUEST_ENABLE_BT = 0;
     private static final int REQUEST_DISCOVER_BT = 1;
     private static final String ARDUINO_BTH_NAME = "Redmi 9";
-    private static boolean PERMISSION = false;
 
     NumberPicker led3, led4, speed;
     Button bthButton;
-    BluetoothManager bthManager;
-    View mainView;
+    private BluetoothAdapter bthAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,33 +50,38 @@ public class MainActivity extends AppCompatActivity {
         //BTH
         bthButton = findViewById(R.id.BTHButton);
         bthButton.setEnabled(true);
-        bthManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+        bthAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        //BTH Permission
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED){
+        if (bthAdapter == null) {
+            showToast("BT is not available on this device ");
+            finish();
+        }
 
-            PERMISSION = true;
+        if (!bthAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                showToast("Permission Denied");
+            }
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
         bthButton.setOnClickListener(v -> {
-            if(PERMISSION){
                 //check BTH connection
-                if (bthManager.getAdapter() == null) {
+                if (bthAdapter == null) {
                     showToast("BHT Connection Failed");
                 } else {
-
                     showToast("BHT Connected");
                 }
 
                 //Enable BTH
-                if (!bthManager.getAdapter().isEnabled()) {
+                if (!bthAdapter.isEnabled()) {
                     showToast("BTH ENABLE");
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivityForResult(intent, REQUEST_ENABLE_BT);
                 }
 
                 //Discovering BTH
-                if(!bthManager.getAdapter().isDiscovering()){
+                if(!bthAdapter.isDiscovering()){
                     showToast("BTH Discovering ON");
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
                     startActivityForResult(intent, REQUEST_DISCOVER_BT);
@@ -88,25 +89,20 @@ public class MainActivity extends AppCompatActivity {
 
 
                 //BTH DEVICES
-                if (bthManager.getAdapter().isEnabled()){
-                    Set<BluetoothDevice> devices = bthManager.getAdapter().getBondedDevices();
-                    for (BluetoothDevice device: devices){
-                        //showToast(device.getName()+" "+ bthManager.getConnectionState(device, BluetoothGatt.GATT));
-                        if (device.getName().equals(ARDUINO_BTH_NAME)){
-
-                            if(bthManager.getConnectionState(device, BluetoothGatt.GATT) == BluetoothProfile.STATE_CONNECTED){
-                                showToast("Connected to " + ARDUINO_BTH_NAME);
-                                //disableEnableControls(true, findViewById(R.id.mainView));
-
-                            }
-                            else{
-                                showToast("Paired to " + ARDUINO_BTH_NAME + " but not connected");
-
-                            }
+                if (bthAdapter.isEnabled()){
+                    BluetoothDevice targetDevice = null;
+                    Set<BluetoothDevice> pairedDevices = bthAdapter.getBondedDevices();
+                    for (BluetoothDevice device: pairedDevices){
+                        //showToast(device.getName()+" "+ bthAdapter.getConnectionState(device, BluetoothGatt.GATT));
+                        if (device.getName().equals(ARDUINO_BTH_NAME)) {
+                            targetDevice = device;
+                            showToast("Paired to " + targetDevice.getName());
                         }
                     }
+                    if(targetDevice == null){
+                        showToast(ARDUINO_BTH_NAME + "not Paired");
+                    }
                 }
-            }
         });
     }
 
@@ -124,4 +120,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    @Override
+    public void onActivityResult (int reqID , int res , Intent data ) {
+        super.onActivityResult(reqID, res, data);
+        if (reqID == REQUEST_ENABLE_BT && res == Activity.RESULT_OK) {
+            // BT enabled
+        }
+        if (reqID == REQUEST_ENABLE_BT && res == Activity.RESULT_CANCELED) {
+            // BT enabling process aborted
+        }
+    }
+
 }
