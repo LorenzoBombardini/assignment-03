@@ -4,7 +4,6 @@ import sys
 import threading
 import time
 from enum import Enum
-from pickle import TRUE
 
 import serial
 from flask import Flask, jsonify, request
