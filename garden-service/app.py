@@ -7,6 +7,7 @@ from flask_cors import CORS
 import time
 import signal
 import sys
+import serial
 
 app = Flask(__name__)
 CORS(app)
@@ -76,9 +77,30 @@ light = {"status": 7}  # 0-7
 alarm = {"status": False}
 bth = {"status": False}
 led_sensor = {"status": 1}  # 0-1
-controller_connected = False
+gardenController_connected = False
 mobile_connected = False
+#gardenController = serial.Serial(port='COM5', baudrate=115200, timeout=.1)
 
+def write_read(x):
+    gardenController.write(bytes(x, 'utf-8'))
+    time.sleep(0.05)
+    data = gardenController.readline()
+    return data
+
+def updateController():
+    global gardenController_connected
+    controllerValue = []
+    controllerValue.append(irrigation["status"])
+    if led[0]["status"]:
+        controllerValue.append(1)
+    else:
+        controllerValue.append(0)
+    print(write_read(controllerValue))
+#    write_read(led[1]["status"])
+#    write_read(led[2]["status"])
+#    write_read(led[3]["status"])
+#    write_read(irrigation["status"])
+#    gardenController_connected = write_read("isConnected")
 
 def mapTemperature():
     global mappedTemperature
@@ -96,14 +118,14 @@ def engine():
     global actualIrrigationStatus
     global start_stop_time
     global start_irrigation_time
-    global controller_connected
+    global gardenController_connected
     global mobile_connected
 
     mapTemperature()
 
     if actualSystemStatus == SystemStatus.AUTO:
         # bth
-        if mobile_connected and controller_connected:
+        if mobile_connected and gardenController_connected:
             bth["status"] = True
             actualSystemStatus = SystemStatus.MANUAL
         else:
@@ -142,16 +164,17 @@ def engine():
                 actualIrrigationStatus = IrrigationStatus.READY
                 start_stop_time = None
 
-    if alarm["status"] == False and not (mobile_connected and controller_connected):
+    if alarm["status"] == False and not (mobile_connected and gardenController_connected):
         actualSystemStatus = SystemStatus.AUTO
         led_sensor["status"] = 1
 
     # print(threading.get_ident())
-    print(controller_connected)
-    print(mobile_connected)
-    print(actualSystemStatus)
-    print(actualIrrigationStatus)
-    print("Mapped temperature: " + str(mappedTemperature))
+    #updateController()
+ #int(gardenController_connected)
+ #int(mobile_connected)
+ #int(actualSystemStatus)
+ #int(actualIrrigationStatus)
+ #int("Mapped temperature: " + str(mappedTemperature))
 
 
 rt = RepeatedTimer(10, engine)
@@ -222,15 +245,15 @@ def set_alarm():
     return {"error": "Request must be JSON"}, 415
 
 
-@app.post("/controller/bth")
-def set_controller_connected():
-    global controller_connected
+@app.post("/gardenController/bth")
+def set_gardenController_connected():
+    global gardenController_connected
     if request.is_json:
         req = request.get_json()
         status = req["status"]
         status = bool(status)
-        controller_connected = status
-        return str(controller_connected), 201
+        gardenController_connected = status
+        return str(gardenController_connected), 201
     return {"error": "Request must be JSON"}, 415
 
 
@@ -252,7 +275,7 @@ def set_sensor_values():
         req = request.get_json()
         statustemp = req["temp"]
         statuslight = req["light"]
-        statustemp = int(statustemp)
+        statustemp = float(statustemp)
         statuslight = int(statuslight)
         temp["status"] = statustemp
         light["status"] = statuslight
