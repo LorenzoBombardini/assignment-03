@@ -1,13 +1,14 @@
 # app.py
-from enum import Enum
-from pickle import TRUE
-import threading
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import time
 import signal
 import sys
+import threading
+import time
+from enum import Enum
+from pickle import TRUE
+
 import serial
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
