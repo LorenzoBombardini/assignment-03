@@ -3,6 +3,10 @@
  */
 #include <WiFi.h>
 #include <HTTPClient.h>
+#define LED 4
+#define TEMP 6
+#define ADC_VREF_mV    3300.0 // in millivolt
+#define ADC_RESOLUTION 4096.0
 
 const char* ssid = "Babini";
 const char* password = "";
@@ -23,10 +27,11 @@ void connectToWifi(const char* ssid, const char* password){
 
 void setup() {
   Serial.begin(115200); 
+  pinMode(LED,OUTPUT);
   connectToWifi(ssid, password);
 }
 
-String sendData(String address, int valueTemp, int valueLight){  
+String sendData(String address, float valueTemp, int valueLight){  
   
    HTTPClient http;    
    http.begin(address + "/sensor");      
@@ -53,14 +58,21 @@ String sendData(String address, int valueTemp, int valueLight){
 void loop() {
   if (WiFi.status()== WL_CONNECTED){      
 
-    int valueTemp = random(15,20);
-    int valueLight = random(15,20);
+    // read the ADC value from the temperature sensor
+    int adcVal = analogRead(TEMP);
+    // convert the ADC value to voltage in millivolt
+    float milliVolt = adcVal * (ADC_VREF_mV / ADC_RESOLUTION);
+    // convert the voltage to the temperature in °C
+    float valueTemp = milliVolt / 10;
+
+    int valueLight = random(0,5);
+    Serial.println(String("temp: ") + valueTemp);
     String code = sendData(serverPath, valueTemp, valueLight);
     Serial.println(code);
     if (code == "1"){
-          //led on
+          digitalWrite(LED,HIGH);
     }else{
-          //led off
+          digitalWrite(LED,LOW);
     }
     
     delay(5000);
