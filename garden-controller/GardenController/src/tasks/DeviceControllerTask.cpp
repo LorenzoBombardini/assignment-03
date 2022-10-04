@@ -2,6 +2,7 @@
 #include "Arduino.h"
 #include "kernel/Logger.h"
 #include "config.h"
+#include "devices/servo_motor_impl.h"
 
 DeviceControllerTask::DeviceControllerTask(GardenController *gc) : gardenController(gc)
 {
@@ -18,6 +19,8 @@ void DeviceControllerTask::tick()
         led2 = new Led(LED2_PIN);
         led3 = new LedExt(LED3_PIN);
         led4 = new LedExt(LED4_PIN);
+        servo = new ServoMotorImpl(SERVO_PIN);
+        isServoOn = false;
         setState(READ_SYSTEM_STATUS);
         break;
     }
@@ -39,11 +42,49 @@ void DeviceControllerTask::tick()
             led4->setIntensity(map(gardenController->getLed4(), 0, 4, 0, 255));
             led3->switchOn();
             led4->switchOn();
-        }else{
+        }
+        else
+        {
             led3->switchOff();
             led4->switchOff();
         }
-        setState(READ_SYSTEM_STATUS); // TODO
+
+        if (gardenController->getIrrigationStatus() > 0)
+        {
+            if (!isServoOn) // se è spento
+            {
+                servo->on();
+                isServoOn = true;
+                servoPos = 110;
+                isServoGoingRight = true;
+                servoSpeed = 60 - gardenController->getIrrigationStatus() * 10;
+            }
+            else // se è acceso
+            {
+                if (servoPos <= 178 && isServoGoingRight)
+                {
+                    servo->setPosition(servoPos);
+                    servoPos++;
+                    delay(servoSpeed);
+                }
+                else if (servoPos >= 110 && !isServoGoingRight)
+                {
+                    servo->setPosition(servoPos);
+                    servoPos--;
+                    delay(servoSpeed);
+                }
+                else
+                {
+                    isServoGoingRight = !isServoGoingRight;
+                }
+            }
+        }
+        else
+        {
+            servo->off();
+            isServoOn = false;
+        }
+        setState(READ_SYSTEM_STATUS);
         break;
     }
     }

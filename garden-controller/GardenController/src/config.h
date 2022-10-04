@@ -12,8 +12,6 @@
 #define SONAR_ECHO_PIN 8
 #define TEMP_PIN A2
 
-#define SERVO_PIN 9
-
 #define T_MAKING 5000
 #define T_TIMEOUT 10000
 #define T_ITEM_DISPLAYED 5000
@@ -31,4 +29,5 @@
 #define LED2_PIN 3
 #define LED3_PIN 5
 #define LED4_PIN 6
+#define SERVO_PIN 9
 #endif

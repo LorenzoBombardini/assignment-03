@@ -5,6 +5,7 @@
 #include "model/GardenController.h"
 #include "devices/Led.h"
 #include "devices/LedExt.h"
+#include "devices/servo_motor_impl.h"
 
 class DeviceControllerTask : public Task
 {
@@ -31,6 +32,12 @@ private:
   Led* led2;
   LedExt* led3;
   LedExt* led4;
+  ServoMotor* servo;
+  int servoPos;
+  int servoSpeed;
+  bool isServoOn;
+  bool isServoGoingRight;
+  
 };
 
 #endif

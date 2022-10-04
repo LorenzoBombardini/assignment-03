@@ -57,7 +57,7 @@ class IrrigationStatus (Enum):
 
 # environment variables and costants
 IRRIGATION_STOP_TIME = 60
-IRRIGATION_MAX_EXECUTON_TIME = 30
+IRRIGATION_MAX_EXECUTON_TIME = 120
 actualSystemStatus = SystemStatus.AUTO
 actualIrrigationStatus = IrrigationStatus.READY
 start_irrigation_time = None
