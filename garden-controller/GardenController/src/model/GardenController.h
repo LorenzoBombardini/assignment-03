@@ -32,6 +32,7 @@ public:
     void setLed2(bool val);
     void setLed3(int val);
     void setLed4(int val);
+    void setIrrigationStatus(int val);
 
     void init();
     ~GardenController();
