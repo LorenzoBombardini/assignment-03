@@ -14,8 +14,14 @@ private:
     int irrigator;
     bool bthStatus;
 
-public:
+    enum
+    {
+        ALARM,
+        MANUAL,
+        AUTO,
+    } state;
 
+public:
     GardenController();
 
     bool getLed1();
@@ -33,6 +39,11 @@ public:
     void setLed3(int val);
     void setLed4(int val);
     void setIrrigationStatus(int val);
+
+    void setBthStatus(bool val);
+    int getSystemStatus();
+    void setSystemStatus(int state);
+
 
     void init();
     ~GardenController();

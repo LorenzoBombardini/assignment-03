@@ -100,3 +100,16 @@ void GardenController::init()
     setLed3(0);
     setLed4(0);
 }
+
+void GardenController::setBthStatus(bool val)
+{
+    bthStatus = val;
+}
+
+void GardenController::setSystemStatus(int status){
+    state = status;
+}
+
+int GardenController::getSystemStatus(){
+    return state;
+}

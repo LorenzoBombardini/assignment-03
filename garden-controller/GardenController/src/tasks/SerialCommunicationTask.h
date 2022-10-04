@@ -13,7 +13,6 @@ public:
 
 private:
   void setState(int state);
-  bool justEnteredInState();
   long elapsedTimeInState();
 
   enum

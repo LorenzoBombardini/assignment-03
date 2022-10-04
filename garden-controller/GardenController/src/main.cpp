@@ -16,6 +16,7 @@
 #include "tasks/SelfTestTask.h"
 #include "model/GardenController.h"
 #include "tasks/SerialCommunicationTask.h"
+#include "tasks/DeviceControllerTask.h"
 
 Scheduler sched;
 UserConsole *pUserConsole;
@@ -30,7 +31,11 @@ void setup()
   Task *pSerialTask = new SerialCommunicationTask(pGardenController);
   pSerialTask->init(50);
 
+  Task *pControllerTask = new DeviceControllerTask(pGardenController);
+  pControllerTask->init(50);
+
   sched.addTask(pSerialTask);
+  sched.addTask(pControllerTask);
 
   /*
     pCoffeeMachine = new CoffeeMachine();
