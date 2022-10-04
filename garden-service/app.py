@@ -79,28 +79,32 @@ bth = {"status": False}
 led_sensor = {"status": 1}  # 0-1
 gardenController_connected = False
 mobile_connected = False
-#gardenController = serial.Serial(port='COM5', baudrate=115200, timeout=.1)
+gardenController = serial.Serial(port='COM5', baudrate=115200, timeout=2)
+gardenController.close()
+gardenController.open()
+
 
 def write_read(x):
-    gardenController.write(bytes(x, 'utf-8'))
-    time.sleep(0.05)
-    data = gardenController.readline()
+    gardenController.write(bytes(x + "\n", 'utf-8'))
+    data = gardenController.readline().decode().strip()
     return data
+
 
 def updateController():
     global gardenController_connected
-    controllerValue = []
-    controllerValue.append(irrigation["status"])
-    if led[0]["status"]:
-        controllerValue.append(1)
-    else:
-        controllerValue.append(0)
+    controllerValue = str(irrigation["status"])
+    controllerValue += "," + str(led[0]["status"])
+    controllerValue += "," + str(led[1]["status"])
+    controllerValue += "," + str(led[2]["status"])
+    controllerValue += "," + str(led[3]["status"])
+    controllerValue += "," + str(actualSystemStatus.value)
     print(write_read(controllerValue))
 #    write_read(led[1]["status"])
 #    write_read(led[2]["status"])
 #    write_read(led[3]["status"])
 #    write_read(irrigation["status"])
 #    gardenController_connected = write_read("isConnected")
+
 
 def mapTemperature():
     global mappedTemperature
@@ -169,11 +173,11 @@ def engine():
         led_sensor["status"] = 1
 
     # print(threading.get_ident())
-    #updateController()
- #int(gardenController_connected)
- #int(mobile_connected)
- #int(actualSystemStatus)
- #int(actualIrrigationStatus)
+    updateController()
+ # int(gardenController_connected)
+ # int(mobile_connected)
+ # int(actualSystemStatus)
+ # int(actualIrrigationStatus)
  #int("Mapped temperature: " + str(mappedTemperature))
 
 
