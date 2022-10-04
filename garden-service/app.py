@@ -93,17 +93,12 @@ def write_read(x):
 def updateController():
     global gardenController_connected
     controllerValue = str(irrigation["status"])
-    controllerValue += "," + str(led[0]["status"])
-    controllerValue += "," + str(led[1]["status"])
+    controllerValue += "," + str(1 if led[0]["status"] else 0)
+    controllerValue += "," + str(1 if led[1]["status"] else 0)
     controllerValue += "," + str(led[2]["status"])
     controllerValue += "," + str(led[3]["status"])
     controllerValue += "," + str(actualSystemStatus.value)
-    print(write_read(controllerValue))
-#    write_read(led[1]["status"])
-#    write_read(led[2]["status"])
-#    write_read(led[3]["status"])
-#    write_read(irrigation["status"])
-#    gardenController_connected = write_read("isConnected")
+    gardenController_connected = write_read(controllerValue)
 
 
 def mapTemperature():
