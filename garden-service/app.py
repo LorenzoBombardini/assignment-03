@@ -57,7 +57,7 @@ class IrrigationStatus (Enum):
 
 # environment variables and costants
 IRRIGATION_STOP_TIME = 60
-IRRIGATION_MAX_EXECUTON_TIME = 30
+IRRIGATION_MAX_EXECUTON_TIME = 120
 actualSystemStatus = SystemStatus.AUTO
 actualIrrigationStatus = IrrigationStatus.READY
 start_irrigation_time = None
@@ -79,28 +79,27 @@ bth = {"status": False}
 led_sensor = {"status": 1}  # 0-1
 gardenController_connected = False
 mobile_connected = False
-#gardenController = serial.Serial(port='COM5', baudrate=115200, timeout=.1)
+gardenController = serial.Serial(port='COM5', baudrate=115200, timeout=2)
+gardenController.close()
+gardenController.open()
+
 
 def write_read(x):
-    gardenController.write(bytes(x, 'utf-8'))
-    time.sleep(0.05)
-    data = gardenController.readline()
+    gardenController.write(bytes(x + "\n", 'utf-8'))
+    data = gardenController.readline().decode().strip()
     return data
+
 
 def updateController():
     global gardenController_connected
-    controllerValue = []
-    controllerValue.append(irrigation["status"])
-    if led[0]["status"]:
-        controllerValue.append(1)
-    else:
-        controllerValue.append(0)
-    print(write_read(controllerValue))
-#    write_read(led[1]["status"])
-#    write_read(led[2]["status"])
-#    write_read(led[3]["status"])
-#    write_read(irrigation["status"])
-#    gardenController_connected = write_read("isConnected")
+    controllerValue = str(irrigation["status"])
+    controllerValue += "," + str(1 if led[0]["status"] else 0)
+    controllerValue += "," + str(1 if led[1]["status"] else 0)
+    controllerValue += "," + str(led[2]["status"])
+    controllerValue += "," + str(led[3]["status"])
+    controllerValue += "," + str(actualSystemStatus.value)
+    gardenController_connected = write_read(controllerValue)
+
 
 def mapTemperature():
     global mappedTemperature
@@ -142,6 +141,7 @@ def engine():
                 led[1]["status"] = False
                 led[2]["status"] = 0
                 led[3]["status"] = 0
+
             if light["status"] < 2 and mappedTemperature > 0 and actualIrrigationStatus == IrrigationStatus.READY:
                 # don't put water on the grass with temperature below 10 degrees, the grass will freeze and the pipes will break
                 start_irrigation_time = time.time()
@@ -168,13 +168,7 @@ def engine():
         actualSystemStatus = SystemStatus.AUTO
         led_sensor["status"] = 1
 
-    # print(threading.get_ident())
-    #updateController()
- #int(gardenController_connected)
- #int(mobile_connected)
- #int(actualSystemStatus)
- #int(actualIrrigationStatus)
- #int("Mapped temperature: " + str(mappedTemperature))
+    updateController()
 
 
 rt = RepeatedTimer(10, engine)
@@ -265,7 +259,7 @@ def set_mobile_connected():
         status = req["status"]
         status = bool(status)
         mobile_connected = status
-        return str(mobile_connected), 201
+        return jsonify({"status": mobile_connected}), 201
     return {"error": "Request must be JSON"}, 415
 
 
