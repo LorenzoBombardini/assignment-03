@@ -141,6 +141,7 @@ def engine():
                 led[1]["status"] = False
                 led[2]["status"] = 0
                 led[3]["status"] = 0
+
             if light["status"] < 2 and mappedTemperature > 0 and actualIrrigationStatus == IrrigationStatus.READY:
                 # don't put water on the grass with temperature below 10 degrees, the grass will freeze and the pipes will break
                 start_irrigation_time = time.time()
@@ -167,13 +168,7 @@ def engine():
         actualSystemStatus = SystemStatus.AUTO
         led_sensor["status"] = 1
 
-    # print(threading.get_ident())
     updateController()
- # int(gardenController_connected)
- # int(mobile_connected)
- # int(actualSystemStatus)
- # int(actualIrrigationStatus)
- #int("Mapped temperature: " + str(mappedTemperature))
 
 
 rt = RepeatedTimer(10, engine)
@@ -264,7 +259,7 @@ def set_mobile_connected():
         status = req["status"]
         status = bool(status)
         mobile_connected = status
-        return str(mobile_connected), 201
+        return jsonify({"status": mobile_connected}), 201
     return {"error": "Request must be JSON"}, 415
 
 
