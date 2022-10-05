@@ -71,12 +71,12 @@
         android:textAlignment="viewStart"
         android:textSize="24sp"
         android:typeface="normal"
-        app:layout_constraintEnd_toStartOf="@+id/Led1"
+        app:layout_constraintEnd_toStartOf="@+id/led1"
         app:layout_constraintTop_toBottomOf="@+id/lightSystemDivider" />
 
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/Led1"
+        android:id="@+id/led1"
         android:layout_width="54dp"
         android:layout_height="30dp"
         android:layout_marginStart="96dp"
@@ -115,7 +115,7 @@
         android:showText="true"
         android:splitTrack="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Led1" />
+        app:layout_constraintTop_toBottomOf="@+id/led1" />
 
     <TextView
         android:id="@+id/led3Title"
