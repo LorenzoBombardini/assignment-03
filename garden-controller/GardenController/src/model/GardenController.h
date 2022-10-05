@@ -14,6 +14,8 @@ private:
     int irrigator;
     bool bthStatus;
 
+    long servoWaitingTime;
+
     enum
     {
         ALARM,

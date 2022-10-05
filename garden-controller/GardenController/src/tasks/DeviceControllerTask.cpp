@@ -26,7 +26,7 @@ void DeviceControllerTask::tick()
     }
     case READ_SYSTEM_STATUS:
     {
-        if (gardenController->getSystemStatus() == 2)
+        if (gardenController->getSystemStatus() != 0) // Se non sono in alarm
         {
             setState(CONTROL_DEVICES);
         }
@@ -49,29 +49,28 @@ void DeviceControllerTask::tick()
             led4->switchOff();
         }
 
-        if (gardenController->getIrrigationStatus() > 0)
+        if (gardenController->getIrrigationStatus() > 0) // irrigatore in funzione
         {
-            if (!isServoOn) // se è spento
+            if (!isServoOn) // se in perecedenza era spento
             {
                 servo->on();
                 isServoOn = true;
                 servoPos = 110;
                 isServoGoingRight = true;
-                servoSpeed = 60 - gardenController->getIrrigationStatus() * 10;
+                servoSpeed = gardenController->getIrrigationStatus();
             }
-            else // se è acceso
+            else // se era già acceso
             {
-                if (servoPos <= 178 && isServoGoingRight)
+                servoSpeed = gardenController->getIrrigationStatus();
+                if (servoPos <= 170 && isServoGoingRight)
                 {
                     servo->setPosition(servoPos);
-                    servoPos++;
-                    delay(servoSpeed);
+                    servoPos += servoSpeed;
                 }
                 else if (servoPos >= 110 && !isServoGoingRight)
                 {
                     servo->setPosition(servoPos);
-                    servoPos--;
-                    delay(servoSpeed);
+                    servoPos -= servoSpeed;
                 }
                 else
                 {
@@ -79,7 +78,7 @@ void DeviceControllerTask::tick()
                 }
             }
         }
-        else
+        else // irrigatore spento
         {
             servo->off();
             isServoOn = false;

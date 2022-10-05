@@ -99,6 +99,9 @@ void GardenController::init()
     setLed2(false);
     setLed3(0);
     setLed4(0);
+    setBthStatus(false);
+    setIrrigationStatus(0);
+    setSystemStatus(AUTO);
 }
 
 void GardenController::setBthStatus(bool val)

@@ -29,10 +29,10 @@ void setup()
   sched.init(50);
   GardenController *pGardenController = new GardenController();
   Task *pSerialTask = new SerialCommunicationTask(pGardenController);
-  pSerialTask->init(50);
+  pSerialTask->init(500);
 
   Task *pControllerTask = new DeviceControllerTask(pGardenController);
-  pControllerTask->init(50);
+  pControllerTask->init(10);
 
   sched.addTask(pSerialTask);
   sched.addTask(pControllerTask);
