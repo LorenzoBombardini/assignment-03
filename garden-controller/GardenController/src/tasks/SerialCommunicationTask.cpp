@@ -53,7 +53,7 @@ void SerialCommunicationTask::tick()
     case UPDATE_SYSTEM_STATUS:
     {
         gardenController->setSystemStatus(splitString(data, 5).toInt());
-        if (gardenController->getSystemStatus() == 2) //Sono in AUTO aggiorno i valori
+        if (gardenController->getSystemStatus() == 2) // Sono in AUTO aggiorno i valori
         {
             gardenController->setIrrigationStatus(splitString(data, 0).toInt());
             gardenController->setLed1(splitString(data, 1).toInt());
