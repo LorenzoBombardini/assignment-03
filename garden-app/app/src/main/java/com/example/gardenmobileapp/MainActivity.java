@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.NumberPicker;
@@ -75,8 +76,6 @@ public class MainActivity extends AppCompatActivity {
         speed.setMinValue(0);
 
         findViewById(R.id.BTHButton).setEnabled(true);
-
-        alarmGet();
     }
 
     //toast message function
@@ -131,8 +130,9 @@ public class MainActivity extends AppCompatActivity {
                     targetDevice = device;
                     showToast("Paired to " + targetDevice.getName());
                     disableEnableControls(true, findViewById(R.id.mainView));
+                    alarmGet();
                     try {
-                        alarmOrBthPost(stdURL+"mobile/bth", false);
+                        doPost(stdURL+"mobile/bth", false);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -143,6 +143,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         showToast(ARDUINO_BTH_NAME + " not Paired");
+    };
+
+    private final View.OnClickListener onClickAlarm = v -> {
+        try {
+            doPost(stdURL+"alarm",false);
+            findViewById(R.id.alarmIcon).setEnabled(false);
+            showToast("Alarm OFF");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     };
 
     //LED 1,2 LISTENER
@@ -167,6 +177,15 @@ public class MainActivity extends AppCompatActivity {
                 response -> {
                     try {
                         alarmStatus = (boolean) response.get("status");
+                        if(alarmStatus){
+                            findViewById(R.id.alarmIcon).isEnabled();
+                            findViewById(R.id.alarmIcon).setVisibility(View.VISIBLE);
+                            findViewById(R.id.alarmIcon).setOnClickListener(onClickAlarm);
+                        }
+                        else{
+                            findViewById(R.id.alarmIcon).setEnabled(false);
+                            findViewById(R.id.alarmIcon).setVisibility(View.INVISIBLE);
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -175,15 +194,15 @@ public class MainActivity extends AppCompatActivity {
         //showToast(jsonObjectRequest.getBody().toString());
         requestQueue.add(jsonObjectRequest);
     }
-    private void alarmOrBthPost(String url, boolean status) throws JSONException {
+    private void doPost(String url, boolean status) throws JSONException {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.POST,
                 url,
                 new JSONObject().put("status", status),
-                response -> showToast(response.toString()),
-                error -> showToast(error.toString()));
+                response -> Log.d("POST",response.toString()),
+                error -> Log.d("POST",error.toString()));
         requestQueue.add(jsonObjectRequest);
     }
 }

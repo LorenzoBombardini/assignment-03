@@ -23,18 +23,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:id="@+id/alarmIcon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:clickable="true"
-        android:contentDescription="@string/alarm_icon"
+        android:background="#00FFFFFF"
+        android:clickable="false"
         android:focusable="true"
+        android:src="@drawable/ic_alarm"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/lightSystemTitle"
