@@ -8,23 +8,7 @@ SerialCommunicationTask::SerialCommunicationTask(GardenController *gc) : gardenC
 {
     setState(START);
 }
-String splitString(String str, int index)
-{
-    int found = 0;
-    int strIdx[] = {0, -1};
-    int maxIdx = str.length() - 1;
 
-    for (int i = 0; i <= maxIdx && found <= index; i++)
-    {
-        if (str.charAt(i) == ',' || i == maxIdx)
-        {
-            found++;
-            strIdx[0] = strIdx[1] + 1;
-            strIdx[1] = (i == maxIdx) ? i + 1 : i;
-        }
-    }
-    return found > index ? str.substring(strIdx[0], strIdx[1]) : "";
-}
 void SerialCommunicationTask::tick()
 {
     switch (state)
@@ -62,14 +46,14 @@ void SerialCommunicationTask::tick()
             gardenController->setLed4(splitString(data, 4).toInt());
         }
 
-        setState(SET_SERVICE_DATA); // TODO
+        setState(SET_SERVICE_DATA);
         break;
     }
 
     case SET_SERVICE_DATA:
     {
 
-        MsgService.sendMsg(String(gardenController->getBthStatus())); // TODO
+        MsgService.sendMsg(String(gardenController->getBthStatus())); 
         setState(GET_SERVICE_DATA);
         break;
     }
