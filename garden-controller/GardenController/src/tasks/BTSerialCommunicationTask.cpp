@@ -27,6 +27,7 @@ void BTSerialCommunicationTask::tick()
             if (msg != NULL)
             {
                 data = msg->getContent();
+                BTService.sendMsg(data);
                 delete msg;
                 setState(WAIT_CONNECTION);
             }

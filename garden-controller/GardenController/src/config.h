@@ -32,5 +32,5 @@
 #define SERVO_PIN 9
 #define BT_RX 12
 #define BT_TX 13
-#define BT_BAUD_RATE 115200
+#define BT_BAUD_RATE 9600
 #endif
