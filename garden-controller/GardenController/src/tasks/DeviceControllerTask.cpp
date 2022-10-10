@@ -39,13 +39,20 @@ void DeviceControllerTask::tick()
         if (gardenController->getLed3() > 0)
         {
             led3->setIntensity(map(gardenController->getLed3(), 0, 4, 0, 255));
-            led4->setIntensity(map(gardenController->getLed4(), 0, 4, 0, 255));
             led3->switchOn();
-            led4->switchOn();
         }
         else
         {
             led3->switchOff();
+        }
+
+        if (gardenController->getLed4() > 0)
+        {
+            led4->setIntensity(map(gardenController->getLed4(), 0, 4, 0, 255));
+            led4->switchOn();
+        }
+        else
+        {
             led4->switchOff();
         }
 
