@@ -1,15 +1,17 @@
-#ifndef __COMMUNICATIONTASK__
-#define __COMMUNICATIONTASK__
+#ifndef __BTCOMMUNICATIONTASK__
+#define __BTCOMMUNICATIONTASK__
 
 #include "kernel/Task.h"
 #include "model/GardenController.h"
+#include "kernel/MsgServiceBT.h"
+
 String splitString(String,int);
 
-class SerialCommunicationTask : public Task
+class BTSerialCommunicationTask : public Task
 {
 
 public:
-  SerialCommunicationTask(GardenController *gc);
+  BTSerialCommunicationTask(GardenController *gc);
   void tick();
 
 private:
@@ -19,9 +21,9 @@ private:
   enum
   {
     START,
-    GET_SERVICE_DATA,
+    GET_BT_DATA,
     UPDATE_SYSTEM_STATUS,
-    SET_SERVICE_DATA,
+    WAIT_CONNECTION,
   } state;
 
   long stateTimestamp;

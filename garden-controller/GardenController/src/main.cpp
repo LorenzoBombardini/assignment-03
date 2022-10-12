@@ -1,71 +1,52 @@
-/*
- * SMART COFFEE MACHINE - Assignment #02 - ESIOT a.y. 2021-2022
- *
- * Esempio di soluzione.
- *
- */
+
 #include <Arduino.h>
 #include "config.h"
 #include "kernel/Scheduler.h"
-// #include "Logger.h"
-#include "UserConsole.h"
-#include "model/CoffeeMachine.h"
-#include "tasks/UserInteractionManTask.h"
-#include "tasks/MakingProductTask.h"
-#include "tasks/RemoveProductTask.h"
-#include "tasks/SelfTestTask.h"
 #include "model/GardenController.h"
 #include "tasks/SerialCommunicationTask.h"
 #include "tasks/DeviceControllerTask.h"
-
+#include "tasks/BTSerialCommunicationTask.h"
 Scheduler sched;
-UserConsole *pUserConsole;
-CoffeeMachine *pCoffeeMachine;
 
 void setup()
 {
-  // Logger.log(".:: Smart Coffee Machine ::.");
-
+  BTService.init();
   sched.init(50);
   GardenController *pGardenController = new GardenController();
   Task *pSerialTask = new SerialCommunicationTask(pGardenController);
   pSerialTask->init(500);
+
+  Task *pBTSerialTask = new BTSerialCommunicationTask(pGardenController);
+  pBTSerialTask->init(100);
 
   Task *pControllerTask = new DeviceControllerTask(pGardenController);
   pControllerTask->init(10);
 
   sched.addTask(pSerialTask);
   sched.addTask(pControllerTask);
-
-  /*
-    pCoffeeMachine = new CoffeeMachine();
-    pUserConsole = new UserConsole();
-
-    Task* pUserIntManTask = new UserInteractionManTask(pUserConsole, pCoffeeMachine);
-    pUserIntManTask->init(50);
-
-    MakingProductTask* pMakingProdTask = new MakingProductTask(pCoffeeMachine);
-    pMakingProdTask->init(100);
-
-    Task* pRemoveProdTask = new RemoveProductTask(pCoffeeMachine);
-    pRemoveProdTask->init(200);
-
-    Task* pSelfTestTask = new SelfTestTask(pCoffeeMachine, pMakingProdTask->getMotor());
-    pSelfTestTask->init(100);
-
-    sched.addTask(pUserIntManTask);
-    sched.addTask(pMakingProdTask);
-    sched.addTask(pRemoveProdTask);
-    sched.addTask(pSelfTestTask);*/
-
-  // Logger.log("Calibrating...");
-  // pUserConsole->notifyCalibrating();
-  // pUserConsole->calibrate();
-  // Logger.log("done");
-  // pUserConsole->notifyReady();
+  sched.addTask(pBTSerialTask);
 }
 
 void loop()
 {
   sched.schedule();
+  BTService.serialEventBT();
+}
+
+String splitString(String str, int index)
+{
+  int found = 0;
+  int strIdx[] = {0, -1};
+  int maxIdx = str.length() - 1;
+
+  for (int i = 0; i <= maxIdx && found <= index; i++)
+  {
+    if (str.charAt(i) == ',' || i == maxIdx)
+    {
+      found++;
+      strIdx[0] = strIdx[1] + 1;
+      strIdx[1] = (i == maxIdx) ? i + 1 : i;
+    }
+  }
+  return found > index ? str.substring(strIdx[0], strIdx[1]) : "";
 }
