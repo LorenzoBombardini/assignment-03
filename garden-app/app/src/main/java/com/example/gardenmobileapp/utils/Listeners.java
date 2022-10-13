@@ -42,7 +42,11 @@ public class Listeners {
                     bth.setLed2(boolToInt(isChecked));
                     break;
                 case R.id.IrrigationOnOffButton:
-                    bth.setIrrigationSpeed(boolToInt(isChecked));
+                    if (!isChecked){
+                        bth.setIrrigationSpeed(0);
+                    }else{
+                        bth.setIrrigationSpeed(speed.getValue());
+                    }
                     speed.setEnabled(isChecked);
                     break;
                 default:
@@ -56,15 +60,12 @@ public class Listeners {
             switch (picker.getId()) {
                 case R.id.led3:
                     bth.setLed3(newVal);
-                    showToast("led3" + newVal, picker.getContext());
                     break;
                 case R.id.led4:
                     bth.setLed4(newVal);
-                    showToast("led4" + newVal, picker.getContext());
                     break;
                 case R.id.speed:
                     bth.setIrrigationSpeed(newVal);
-                    showToast("irrigation" + newVal, picker.getContext());
                     break;
                 default:
                     Log.d("Listener", picker.getContext().toString());

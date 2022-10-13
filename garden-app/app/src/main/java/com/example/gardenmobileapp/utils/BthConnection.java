@@ -46,6 +46,7 @@ public class BthConnection {
             if (outStream == null) {
                 return false;
             }
+            message = message + "\n";
             byte[] msgBuffer = message.getBytes();
             try {
                 outStream.write(msgBuffer);

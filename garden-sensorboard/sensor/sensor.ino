@@ -5,6 +5,7 @@
 #include <HTTPClient.h>
 #define LED 4
 #define TEMP 6
+#define LIGHT 7
 #define ADC_VREF_mV    3300.0 // in millivolt
 #define ADC_RESOLUTION 4096.0
 
@@ -65,17 +66,17 @@ void loop() {
     // convert the voltage to the temperature in °C
     float valueTemp = milliVolt / 10;
 
-    int valueLight = random(0,5);
+    int valueLight = analogRead(LIGHT);
+    int mappedLight = map(valueLight,1800,4095,0,7);
     Serial.println(String("temp: ") + valueTemp);
-    String code = sendData(serverPath, valueTemp, valueLight);
+    Serial.println(String("light: ") + mappedLight);
+    /*String code = sendData(serverPath, valueTemp, valueLight);
     Serial.println(code);
     if (code == "1"){
           digitalWrite(LED,HIGH);
     }else{
           digitalWrite(LED,LOW);
-    }
-    
-    delay(5000);
+    }*/
 
   } else {
     Serial.println("WiFi Disconnected... Reconnect.");

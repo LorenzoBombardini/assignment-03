@@ -15,7 +15,7 @@ import org.json.JSONObject;
 
 public class ApiUtils {
 
-    public static final String stdURL = "http://192.168.178.109:8000";
+    public static final String stdURL = "http://192.168.0.50:8000";
 
     public static boolean checkInternetConnection(Context context){
         ConnectivityManager cn = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

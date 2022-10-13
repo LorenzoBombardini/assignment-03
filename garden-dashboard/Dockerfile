@@ -1,5 +1,5 @@
 # build stage
-FROM garden-dashboard as build-stage
+FROM garden-dashboard-dev as build-stage
 WORKDIR /dashboard
 RUN npm install
 RUN npm run build

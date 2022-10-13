@@ -1,4 +1,3 @@
-
 #include <Arduino.h>
 #include "config.h"
 #include "kernel/Scheduler.h"

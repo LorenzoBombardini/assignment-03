@@ -1,6 +1,7 @@
 package com.example.gardenmobileapp.utils;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 
 import androidx.appcompat.app.AlertDialog;

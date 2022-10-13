@@ -51,7 +51,7 @@ void BTSerialCommunicationTask::tick()
     }
     case UPDATE_SYSTEM_STATUS:
     {
-        if (gardenController->getSystemStatus() == 1) // Sono in MANUAL aggiorno i valori
+        if (gardenController->getSystemStatus() == 1) // Se anche il service è in MANUAL aggiorno i valori
         {
             gardenController->setIrrigationStatus(splitString(data, 0).toInt());
             gardenController->setLed1(splitString(data, 1).toInt());

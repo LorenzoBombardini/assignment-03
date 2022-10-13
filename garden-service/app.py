@@ -169,6 +169,7 @@ def engine():
         led_sensor["status"] = 1
 
     updateController()
+    print(gardenController_connected)
 
 
 rt = RepeatedTimer(10, engine)

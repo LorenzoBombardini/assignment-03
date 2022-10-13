@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.NumberPicker;
 
 import androidx.annotation.RequiresApi;
@@ -40,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BT = 0;
     private static final int REQUEST_DISCOVER_BT = 1;
-    private static final int BTH_POLLING_TIME_RATE = 1000;
-    private static final String ARDUINO_BTH_NAME = "S7";
+    private static final int POLLING_TIME_RATE = 1000;
+    private static final String ARDUINO_BTH_NAME = "H3";
 
     public BthUtils bthUtils = new BthUtils();
     private final BthConnection bthConnection = new BthConnection();
@@ -52,7 +53,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             bthConnection.sendMessageBluetooth(bthUtils.getBthString());
-            bthHandler.postDelayed(bthPolling, BTH_POLLING_TIME_RATE); //wait 4 sec and run again
+            ApiUtils.doGet(stdURL + "/alarm", MainActivity.this, callbackAlarm);
+            bthHandler.postDelayed(bthPolling, POLLING_TIME_RATE); //wait 4 sec and run again
+        }
+    };
+    Handler alarmHandler = new Handler();
+    Runnable alarmPolling = new Runnable() {
+        @Override
+        public void run() {
+            ApiUtils.doGet(stdURL + "/alarm", MainActivity.this, callbackAlarm);
+            alarmHandler.postDelayed(alarmPolling, POLLING_TIME_RATE); //wait 4 sec and run again
         }
     };
 
@@ -60,11 +70,9 @@ public class MainActivity extends AppCompatActivity {
     Runnable endResponsePolling = new Runnable() {
         @Override
         public void run() {
-            loadingDialog = new LoadingDialog(MainActivity.this);
-            loadingDialog.startLoadingDialog();
             bthConnection.sendMessageBluetooth(bthUtils.getBthString());
             doGet(stdURL + "/bth", MainActivity.this, callbackEnd);
-            endResponseHandler.postDelayed(endResponsePolling, BTH_POLLING_TIME_RATE);
+            endResponseHandler.postDelayed(endResponsePolling, POLLING_TIME_RATE);
         }
     };
     Handler startResponseHandler = new Handler();
@@ -73,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             bthConnection.sendMessageBluetooth(bthUtils.getBthString());
             doGet(stdURL + "/bth", MainActivity.this, callbackStart);
-            startResponseHandler.postDelayed(startResponsePolling, BTH_POLLING_TIME_RATE);
+            startResponseHandler.postDelayed(startResponsePolling, POLLING_TIME_RATE);
         }
     };
 
@@ -81,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSuccess(Object result) {
             if ((boolean) result) {
-                findViewById(R.id.alarmIcon).isEnabled();
+                findViewById(R.id.alarmIcon).setEnabled(true);
                 findViewById(R.id.alarmIcon).setVisibility(View.VISIBLE);
             } else {
                 findViewById(R.id.alarmIcon).setEnabled(false);
@@ -98,9 +106,11 @@ public class MainActivity extends AppCompatActivity {
     public VolleyCallback callbackEnd = new VolleyCallback() {
         @Override
         public void onSuccess(Object result) {
+            Log.d("result", result.toString());
             if (!(boolean) result) {
-                stopPolling(endResponseHandler, endResponsePolling);
                 loadingDialog.dismissDialog();
+                stopPolling(endResponseHandler, endResponsePolling);
+                finish();
             }
         }
 
@@ -114,8 +124,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSuccess(Object result) {
             if ((boolean) result) {
-                stopPolling(startResponseHandler, startResponsePolling);
                 loadingDialog.dismissDialog();
+                stopPolling(startResponseHandler, startResponsePolling);
             }
         }
 
@@ -127,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
     NumberPicker led3, led4, speed;
     SwitchCompat led1, led2, irrigationButton;
+    Button bthBtn;
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
@@ -141,22 +152,15 @@ public class MainActivity extends AppCompatActivity {
         }
         //init view
         initView();
-
+        startPolling(alarmHandler,alarmPolling);
         //permission Check
-         checkPermission();
+        checkPermission();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        bthUtils.setMode(2);
-        try {
-            doPost(stdURL + "/mobile/bth", false, this);
-            startPolling(endResponseHandler, endResponsePolling);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        stopPolling(alarmHandler,alarmPolling);
         finish();
     }
 
@@ -164,11 +168,12 @@ public class MainActivity extends AppCompatActivity {
         //disable all
         disableEnableControls(false, findViewById(R.id.mainView));
 
-
         led1 = findViewById(R.id.led1);
+        led1.setChecked(false);
         led1.setOnCheckedChangeListener(Listeners.getOnChangeSwitch(bthUtils, null));
 
         led2 = findViewById(R.id.led2);
+        led2.setChecked(false);
         led2.setOnCheckedChangeListener(Listeners.getOnChangeSwitch(bthUtils, null));
 
         led3 = findViewById(R.id.led3);
@@ -187,12 +192,15 @@ public class MainActivity extends AppCompatActivity {
         speed.setOnValueChangedListener(Listeners.getOnChangeNumberPicker(bthUtils));
 
         irrigationButton = findViewById(R.id.IrrigationOnOffButton);
+        irrigationButton.setChecked(false);
         irrigationButton.setOnCheckedChangeListener(Listeners.getOnChangeSwitch(bthUtils, speed));
 
         findViewById(R.id.alarmIcon).setOnClickListener(Listeners.getOnClickAlarm());
+        findViewById(R.id.alarmIcon).setEnabled(true);
 
-        findViewById(R.id.BTHButton).setEnabled(true);
-        findViewById(R.id.BTHButton).setOnClickListener(onClickBTHButton);
+        bthBtn = findViewById(R.id.BTHButton);
+        bthBtn.setEnabled(true);
+        bthBtn.setOnClickListener(onClickBTHButton);
 
         ApiUtils.doGet(stdURL + "/alarm", this, callbackAlarm);
     }
@@ -241,15 +249,38 @@ public class MainActivity extends AppCompatActivity {
                 if (device.getName().equals(ARDUINO_BTH_NAME)) {
                     bthConnection.setTargetDevice(device);
                     if (bthConnection.socketConnection()) {
-                    try {
-                        doPost(stdURL + "/mobile/bth", true, this);
-                        startPolling(startResponseHandler, startResponsePolling);
+                        try {
+                            doPost(stdURL + "/mobile/bth", true, this);
+                            loadingDialog = new LoadingDialog(MainActivity.this);
+                            loadingDialog.startLoadingDialog();
+                            startPolling(startResponseHandler, startResponsePolling);
+                            disableEnableControls(true, findViewById(R.id.mainView));
+                            speed.setEnabled(false);
                             bthConnection.sendMessageBluetooth(bthUtils.getBthString());
+                            bthBtn.setText("Disconnect");
+                            bthBtn.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    bthUtils.setMode(2);
+                                    stopPolling(bthHandler, bthPolling);
+
+                                    try {
+                                        doPost(stdURL + "/mobile/bth", false, view.getContext());
+                                        loadingDialog = new LoadingDialog(MainActivity.this);
+                                        loadingDialog.startLoadingDialog();
+                                        startPolling(endResponseHandler, endResponsePolling);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
                             bthUtils.setMode(1);
-                        startPolling(bthHandler, bthPolling);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+
+
+                            startPolling(bthHandler, bthPolling);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         showToast("Bth Socket Connection Failed", this);
                     }
@@ -263,16 +294,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startPolling(Handler handler, Runnable runnable) {
-        loadingDialog = new LoadingDialog(MainActivity.this);
-        loadingDialog.startLoadingDialog();
         handler.postDelayed(runnable, 0); //wait 0 ms and run
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     private void checkPermission() {
-        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_SCAN)!=PackageManager.PERMISSION_GRANTED &&ActivityCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_CONNECT)!=PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN,Manifest.permission.BLUETOOTH_CONNECT} , REQUEST_ENABLE_BT);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_ENABLE_BT);
         }
     }
 }
