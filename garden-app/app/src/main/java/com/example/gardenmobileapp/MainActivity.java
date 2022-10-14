@@ -177,12 +177,12 @@ public class MainActivity extends AppCompatActivity {
         led2.setOnCheckedChangeListener(Listeners.getOnChangeSwitch(bthUtils, null));
 
         led3 = findViewById(R.id.led3);
-        led3.setMaxValue(5);
+        led3.setMaxValue(4);
         led3.setMinValue(0);
         led3.setOnValueChangedListener(Listeners.getOnChangeNumberPicker(bthUtils));
 
         led4 = findViewById(R.id.led4);
-        led4.setMaxValue(5);
+        led4.setMaxValue(4);
         led4.setMinValue(0);
         led4.setOnValueChangedListener(Listeners.getOnChangeNumberPicker(bthUtils));
 

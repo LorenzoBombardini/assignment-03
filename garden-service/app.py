@@ -56,8 +56,8 @@ class IrrigationStatus (Enum):
 
 
 # environment variables and costants
-IRRIGATION_STOP_TIME = 60
-IRRIGATION_MAX_EXECUTON_TIME = 120
+IRRIGATION_STOP_TIME = 20
+IRRIGATION_MAX_EXECUTON_TIME = 30
 actualSystemStatus = SystemStatus.AUTO
 actualIrrigationStatus = IrrigationStatus.READY
 start_irrigation_time = None
@@ -98,6 +98,7 @@ def updateController():
     controllerValue += "," + str(led[2]["status"])
     controllerValue += "," + str(led[3]["status"])
     controllerValue += "," + str(actualSystemStatus.value)
+    print(controllerValue)
     gardenController_connected = write_read(controllerValue)
 
 

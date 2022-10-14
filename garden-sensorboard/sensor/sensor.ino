@@ -1,6 +1,6 @@
 /*
- * HTTPClient lib -- simple HTTP GET
- */
+   HTTPClient lib -- simple HTTP GET
+*/
 #include <WiFi.h>
 #include <HTTPClient.h>
 #define LED 4
@@ -14,10 +14,10 @@ const char* password = "";
 
 const char *serverPath = "http://192.168.0.50:8000";
 
-void connectToWifi(const char* ssid, const char* password){
+void connectToWifi(const char* ssid, const char* password) {
   WiFi.begin(ssid, password);
   Serial.println("Connecting");
-  while(WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
@@ -27,37 +27,37 @@ void connectToWifi(const char* ssid, const char* password){
 }
 
 void setup() {
-  Serial.begin(115200); 
-  pinMode(LED,OUTPUT);
+  Serial.begin(115200);
+  pinMode(LED, OUTPUT);
   connectToWifi(ssid, password);
 }
 
-String sendData(String address, float valueTemp, int valueLight){  
-  
-   HTTPClient http;    
-   http.begin(address + "/sensor");      
-   http.addHeader("Content-Type", "application/json");    
-    
-   String msg = 
-    String("{ \"temp\": ") + String(valueTemp) + 
-    ", \"light\": \"" + String(valueLight) +"\" }";
-   
-   int retCode = http.POST(msg);
-   if (retCode == 201){
-       Serial.println("ok");   
-     } else {
-       Serial.println(String("error: ") + retCode);
-     }
-       
-   String ledVal = http.getString();
-   http.end();  
-   
-   return ledVal;
+String sendData(String address, float valueTemp, int valueLight) {
+
+  HTTPClient http;
+  http.begin(address + "/sensor");
+  http.addHeader("Content-Type", "application/json");
+
+  String msg =
+    String("{ \"temp\": ") + String(valueTemp) +
+    ", \"light\": \"" + String(valueLight) + "\" }";
+
+  int retCode = http.POST(msg);
+  if (retCode == 201) {
+    Serial.println("ok");
+  } else {
+    Serial.println(String("error: ") + retCode);
+  }
+
+  String ledVal = http.getString();
+  http.end();
+
+  return ledVal;
 }
 
 
 void loop() {
-  if (WiFi.status()== WL_CONNECTED){      
+  if (WiFi.status() == WL_CONNECTED) {
 
     // read the ADC value from the temperature sensor
     int adcVal = analogRead(TEMP);
@@ -67,17 +67,17 @@ void loop() {
     float valueTemp = milliVolt / 10;
 
     int valueLight = analogRead(LIGHT);
-    int mappedLight = map(valueLight,1800,4095,0,7);
+    int mappedLight = map(valueLight, 1800, 4095, 0, 7);
     Serial.println(String("temp: ") + valueTemp);
     Serial.println(String("light: ") + mappedLight);
-    /*String code = sendData(serverPath, valueTemp, valueLight);
+    String code = sendData(serverPath, valueTemp, mappedLight);
     Serial.println(code);
-    if (code == "1"){
-          digitalWrite(LED,HIGH);
-    }else{
-          digitalWrite(LED,LOW);
-    }*/
-
+    if (code == "1") {
+      digitalWrite(LED, HIGH);
+    } else {
+      digitalWrite(LED, LOW);
+    }
+    delay(5000);
   } else {
     Serial.println("WiFi Disconnected... Reconnect.");
     connectToWifi(ssid, password);
